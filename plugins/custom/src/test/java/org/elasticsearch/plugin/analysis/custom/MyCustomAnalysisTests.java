@@ -80,7 +80,7 @@ public class MyCustomAnalysisTests extends ESTokenStreamTestCase {
             .build();
         TestAnalysis analysis = createTestAnalysis(settings);
         Analyzer analyzer = analysis.indexAnalyzers.get("my_analyzer2");
-        try (TokenStream stream = analyzer.tokenStream("", "가늠표")) {
+        try (TokenStream stream = analyzer.tokenStream("", "가늠 표")) {
             assertTokenStreamContents(stream, new String[] { "가늠", "표" });
         }
     }
