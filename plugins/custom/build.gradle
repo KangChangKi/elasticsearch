@@ -1,0 +1,39 @@
+/*
+ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+ * or more contributor license agreements. Licensed under the "Elastic License
+ * 2.0", the "GNU Affero General Public License v3.0 only", and the "Server Side
+ * Public License v 1"; you may not use this file except in compliance with, at
+ * your election, the "Elastic License 2.0", the "GNU Affero General Public
+ * License v3.0 only", or the "Server Side Public License, v 1".
+ */
+apply plugin: 'elasticsearch.legacy-yaml-rest-test'
+apply plugin: 'elasticsearch.legacy-yaml-rest-compat-test'
+
+esplugin {
+  description 'The Korean (custom) Analysis plugin integrates Lucene custom analysis module into elasticsearch.'
+  classname 'org.elasticsearch.plugin.analysis.custom.AnalysisCustomPlugin'
+}
+
+dependencies {
+  api "org.apache.lucene:lucene-analysis-nori:${versions.lucene}"
+}
+
+restResources {
+  restApi {
+    include '_common', 'indices', 'index', 'search'
+  }
+}
+
+tasks.named("dependencyLicenses").configure {
+  mapping from: /lucene-.*/, to: 'lucene'
+}
+
+test {
+    testLogging {
+        // Test 수행 중에 발생하는 표준 출력과 표준 에러를 출력
+        showStandardStreams = true
+
+        // 원하는 경우 아래 로그 수준을 추가하여 테스트 상태도 확인할 수 있음
+        events "passed", "skipped", "failed"
+    }
+}
