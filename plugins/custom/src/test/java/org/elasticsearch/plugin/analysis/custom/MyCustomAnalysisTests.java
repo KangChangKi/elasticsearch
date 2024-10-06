@@ -68,8 +68,8 @@ public class MyCustomAnalysisTests extends ESTokenStreamTestCase {
 
         TestAnalysis analysis = createTestAnalysis(Settings.EMPTY);
         Analyzer analyzer = analysis.indexAnalyzers.get("custom_analyzer");
-        try (TokenStream stream = analyzer.tokenStream("", "가늠표")) {
-            assertTokenStreamContents(stream, new String[] { "가늠", "표" });
+        try (TokenStream stream = analyzer.tokenStream("", "aaa|bbb ccc")) {
+            assertTokenStreamContents(stream, new String[] { "aaa|bbb", "ccc" });
         }
     }
 
@@ -80,8 +80,8 @@ public class MyCustomAnalysisTests extends ESTokenStreamTestCase {
             .build();
         TestAnalysis analysis = createTestAnalysis(settings);
         Analyzer analyzer = analysis.indexAnalyzers.get("my_analyzer2");
-        try (TokenStream stream = analyzer.tokenStream("", "가늠 표")) {
-            assertTokenStreamContents(stream, new String[] { "가늠", "표" });
+        try (TokenStream stream = analyzer.tokenStream("", "aaa|bbb ccc")) {
+            assertTokenStreamContents(stream, new String[] { "aaa|bbb", "ccc" }, new int[] { 1, 1 });
         }
     }
 
