@@ -153,6 +153,8 @@ abstract class MyCharTokenizer extends Tokenizer {
     private static final int IO_BUFFER_SIZE = 4096;
     private final int maxTokenLen;
 
+    private boolean samePos = false;
+
     private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
     private final OffsetAttribute offsetAtt = addAttribute(OffsetAttribute.class);
     private final PositionIncrementAttribute posIncAtt = addAttribute(PositionIncrementAttribute.class);
@@ -166,6 +168,13 @@ abstract class MyCharTokenizer extends Tokenizer {
      */
     protected abstract boolean isTokenChar(int c);
 
+    private boolean isDelimiterChar(int c) {
+        if (((char) c) == '|') {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public final boolean incrementToken() throws IOException {
         clearAttributes();
@@ -174,7 +183,12 @@ abstract class MyCharTokenizer extends Tokenizer {
         int end = -1;
         char[] buffer = termAtt.buffer();
 
-        posIncAtt.setPositionIncrement(1);
+        if (samePos) {
+            posIncAtt.setPositionIncrement(0);
+            samePos = false;
+        } else {
+            posIncAtt.setPositionIncrement(1);
+        }
 
         while (true) {
             if (bufferIndex >= dataLen) {
@@ -198,7 +212,7 @@ abstract class MyCharTokenizer extends Tokenizer {
             final int charCount = Character.charCount(c);
             bufferIndex += charCount;
 
-            if (isTokenChar(c)) { // if it's a token char
+            if (isTokenChar(c) && !isDelimiterChar(c)) { // if it's a token char
                 if (length == 0) { // start of token
                     assert start == -1;
                     start = offset + bufferIndex - charCount;
@@ -214,6 +228,9 @@ abstract class MyCharTokenizer extends Tokenizer {
                     break;
                 }
             } else if (length > 0) { // at non-Letter w/ chars
+                if (isDelimiterChar(c)) {
+                    samePos = true;
+                }
                 break; // return 'em
             }
         }
@@ -239,6 +256,8 @@ abstract class MyCharTokenizer extends Tokenizer {
         dataLen = 0;
         finalOffset = 0;
         ioBuffer.reset(); // make sure to reset the IO buffer!!
+
+        samePos = false;
     }
 }
 
